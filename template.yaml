@@ -9,8 +9,8 @@ Resources:
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
         - ResourceName: newItem
       CodeUri: src/newItem
-      Handler: handler.handler
-      Runtime: python3.8
+      Handler: index.handler
+      Runtime: nodejs12.x
       MemorySize: 3008
       Timeout: 30
       Tracing: Active
@@ -95,8 +95,8 @@ Resources:
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
         - ResourceName: getwaifu
       CodeUri: src/get_waifu
-      Handler: handler.handler
-      Runtime: python3.8
+      Handler: index.handler
+      Runtime: nodejs12.x
       MemorySize: 3008
       Timeout: 30
       Tracing: Active
