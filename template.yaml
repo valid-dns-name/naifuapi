@@ -90,12 +90,7 @@ Resources:
   waifuimagebucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-waifuimag-${AWS::AccountId}
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: alias/aws/s3
+      BucketName: !Sub ${AWS::StackName}-naifus
   waifuimagebucketBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
