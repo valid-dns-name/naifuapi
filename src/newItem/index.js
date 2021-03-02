@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
       id:  event.id, // modify with each invoke so the id does not repeat
       name: event.name,
       description: event.description,
-      image: bucketpath + event.id
+      image: bucketpath + event.id + '.png'
     },
     ConditionExpression: 'attribute_not_exists(id)', // do not overwrite existing entries
     ReturnConsumedCapacity: 'TOTAL'
