@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 
 exports.handler = async (event, context) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  const bucketpath = 'https://' + process.env.BUCKET_NAME
+  const bucketpath = 'https://' + process.env.BUCKET_NAME;
   const params = {
     TableName: process.env.TABLE_NAME, // get the table name from the automatically populated environment variables
     Item: {
