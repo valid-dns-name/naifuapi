@@ -1,13 +1,14 @@
 const AWS = require('aws-sdk');
 
 exports.handler = async (event, context) => {
+  console.log(JSON.stringify(event))
   // Use dynamodb to get items from the Item table
   const dynamodb = new AWS.DynamoDB.DocumentClient();
   const params = {
     TableName: process.env.TABLE_NAME,
     KeyConditionExpression: 'id = :hashKey',
     ExpressionAttributeValues: {
-      ':hashKey': event.id
+      ':hashKey': event.queryStringParameters.id
     },
   };
 
