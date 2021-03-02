@@ -9,8 +9,8 @@ Resources:
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
         - ResourceName: newItem
       CodeUri: src/newItem
-      Handler: index.handler
-      Runtime: nodejs12.x
+      Handler: handler.handler
+      Runtime: python3.8
       MemorySize: 3008
       Timeout: 30
       Tracing: Active
