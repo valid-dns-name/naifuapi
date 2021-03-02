@@ -1,17 +1,21 @@
 const AWS = require('aws-sdk');
 
-exports.handler = async () => {
+exports.handler = async (event, context) => {
   // Use dynamodb to get items from the Item table
   const dynamodb = new AWS.DynamoDB.DocumentClient();
   const params = {
-    TableName: process.env.TABLE_NAME
+    TableName: process.env.TABLE_NAME,
+    KeyConditionExpression: 'id = :hashKey',
+    ExpressionAttributeValues: {
+      ':hashKey': event.id
+    },
   };
 
   let allItems = [];
 
   try {
     console.log(`Getting data from table ${process.env.TABLE_NAME}.`);
-    const items = await dynamodb.scan(params).promise(); // get items from DynamoDB
+    const items = await dynamodb.query(params).promise(); // get items from DynamoDB
     items.Items.forEach((item) => allItems.push(item)); // put contents in an array for easier parsing
     allItems.forEach(item => console.log(`Item ${item.id}: ${item.content}\n`)); // log the contents
   } catch (error) {
@@ -25,7 +29,7 @@ exports.handler = async () => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: `${allItems.length} items found`
+    body: allItems[0]
   };
 
   return response;
