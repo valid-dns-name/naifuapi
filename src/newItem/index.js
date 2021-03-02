@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
     TableName: process.env.TABLE_NAME, // get the table name from the automatically populated environment variables
     Item: {
       id:  '1', // modify with each invoke so the id does not repeat
-      content: 'This is my content' // modify content here
+      content: 'This is my content', // modify content here
       name: "DefaultString"
       
     },
