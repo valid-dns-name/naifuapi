@@ -22,41 +22,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref Items
           TABLE_ARN: !GetAtt Items.Arn
-      Events:
-        QuickstartApiPOSTnewItem:
-          Type: Api
-          Properties:
-            Path: /newItem
-            Method: POST
-            RestApiId: !Ref QuickstartApi
-  getItems:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-getItems
-      Description: !Sub
-        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: getItems
-      CodeUri: src/getItems
-      Handler: index.handler
-      Runtime: nodejs12.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref Items
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref Items
-          TABLE_ARN: !GetAtt Items.Arn
-      Events:
-        QuickstartApiGETitems:
-          Type: Api
-          Properties:
-            Path: /items
-            Method: GET
-            RestApiId: !Ref QuickstartApi
   Items:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -86,14 +51,7 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getItems.Arn}/invocations
-              responses: {}
-          /newItem:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${newItem.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getwaifu.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
@@ -129,6 +87,34 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: 'false'
+  getwaifu:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-getwaifu
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: getwaifu
+      CodeUri: src/get_waifu
+      Handler: handler.handler
+      Runtime: python3.8
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Items
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Items
+          TABLE_ARN: !GetAtt Items.Arn
+      Events:
+        QuickstartApiGETitems:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: GET
+            RestApiId: !Ref QuickstartApi
 Parameters:
   StackTagName:
     Type: String
