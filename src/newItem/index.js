@@ -2,11 +2,11 @@ const AWS = require('aws-sdk');
 
 exports.handler = async (event, context) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  const bucketpath = 'https://' + process.env.BUCKET_NAME;
+  const bucketpath = 'https://' + process.env.BUCKET_NAME + '/'
   const params = {
     TableName: process.env.TABLE_NAME, // get the table name from the automatically populated environment variables
     Item: {
-      id:  parseInt(event.id), // modify with each invoke so the id does not repeat
+      id:  event.id, // modify with each invoke so the id does not repeat
       name: event.name,
       description: event.description,
       image: bucketpath + event.id + '.png'
