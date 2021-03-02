@@ -1,12 +1,16 @@
 const AWS = require('aws-sdk');
 
-exports.handler = async () => {
+exports.handler = async (event, context) => {
+  console.log("EVENT: \N" + JSON.stringify(event, null, 2))
   const dynamodb = new AWS.DynamoDB.DocumentClient();
+  const bucketpath = "https://s3.us-west-2.amazonaws.com/waifus/"
   const params = {
     TableName: process.env.TABLE_NAME, // get the table name from the automatically populated environment variables
     Item: {
-      id: '1', // modify with each invoke so the id does not repeat
+      id:  '1', // modify with each invoke so the id does not repeat
       content: 'This is my content' // modify content here
+      name: "DefaultString"
+      
     },
     ConditionExpression: 'attribute_not_exists(id)', // do not overwrite existing entries
     ReturnConsumedCapacity: 'TOTAL'
