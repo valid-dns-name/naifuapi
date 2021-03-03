@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
     TableName: process.env.TABLE_NAME,
     KeyConditionExpression: 'id = :hashKey',
     ExpressionAttributeValues: {
-      ':hashKey': event.queryStringParameters.id
+      ':hashKey': JSON.stringify(event.queryStringParameters.id)
     },
   };
 
