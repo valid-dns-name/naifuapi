@@ -23,6 +23,12 @@ exports.handler = async (event, context) => {
     console.log(`Error getting data from table ${process.env.TABLE_NAME}. Make sure this function is running in the same environment as the table.`);
     throw new Error(error); // stop execution if data from dynamodb not available
   }
+  var item = allItems[0]
+  var waifu = {
+    name: item.name,
+    description: item.description,
+    image: item.image,
+  }
 
   // Return a 200 response if no errors
   const response = {
@@ -30,7 +36,7 @@ exports.handler = async (event, context) => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: allItems[0]
+    body: JSON.stringify(waifu)
   };
 
   return response;
