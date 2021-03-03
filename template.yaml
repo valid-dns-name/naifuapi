@@ -147,6 +147,13 @@ Resources:
               OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CfOriginAccessIdentity}
         PriceClass: PriceClass_All
     Type: AWS::CloudFront::Distribution
+  CfOriginAccessIdentity:
+    Metadata:
+      Comment: Access S3 bucket content only through CloudFront
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Access S3 bucket content only through CloudFront
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
 Parameters:
   StackTagName:
     Type: String
