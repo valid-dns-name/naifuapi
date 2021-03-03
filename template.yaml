@@ -86,7 +86,7 @@ Resources:
         QuickstartApiGETitems:
           Type: Api
           Properties:
-            Path: /items
+            Path: /lovely/naifu
             Method: GET
             RestApiId: !Ref QuickstartApi
   waifubucket:
