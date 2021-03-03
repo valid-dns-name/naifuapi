@@ -22,7 +22,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref Items
           TABLE_ARN: !GetAtt Items.Arn
-          BUCKET_NAME: !GetAtt waifuimagebucket.DomainName
+          BUCKET_NAME: !GetAtt CfDistribution.DomainName
   Items:
     Type: AWS::DynamoDB::Table
     Properties:
