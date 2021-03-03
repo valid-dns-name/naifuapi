@@ -61,7 +61,8 @@ Resources:
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getwaifu.Arn}/invocations
               responses: {}
       TracingEnabled: true
-      Domain: !Ref naifuapidomain
+      DomainName: api.naifu.cafe
+      CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
       Cors:
         AllowHeaders: '''Authorization,Content-Type'''
         AllowOrigin: '''*'''
