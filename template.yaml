@@ -3,10 +3,10 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   naifuapidomain:
     Type: AWS::ApiGateway::DomainName
-    Properties: null
-    CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
-    DomainName: api.naifu.cafe
-    SecurityPolicy: TLS_1_2
+    Properties:
+      CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
+      DomainName: api.naifu.cafe
+      SecurityPolicy: TLS_1_2
   newItem:
     Type: AWS::Serverless::Function
     Properties:
