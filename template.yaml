@@ -23,7 +23,7 @@ Resources:
           TABLE_NAME: !Ref Items
           TABLE_ARN: !GetAtt Items.Arn
           BUCKET_NAME: !GetAtt CfDistribution.DomainName
-  TokenAssetTable:
+  TokenAsset:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
