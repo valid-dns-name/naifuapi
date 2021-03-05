@@ -23,7 +23,7 @@ Resources:
           TABLE_NAME: !Ref Items
           TABLE_ARN: !GetAtt Items.Arn
           BUCKET_NAME: !GetAtt CfDistribution.DomainName
-  Items:
+  TokenAssetTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -31,11 +31,37 @@ Resources:
           AttributeType: S
       BillingMode: PAY_PER_REQUEST
       KeySchema:
-        - AttributeName: id
+        - AttributeName: token_id
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-Items
+  LovelyNaifus:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: naifu_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-Items
+  Rarities:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: rarity
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-
   QuickstartApi:
     Type: AWS::Serverless::Api
     Properties:
