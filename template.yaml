@@ -35,7 +35,7 @@ Resources:
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-Items
+      TableName: !Sub ${AWS::StackName}-tokenassets
   LovelyNaifus:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -48,7 +48,7 @@ Resources:
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-Items
+      TableName: !Sub ${AWS::StackName}-lovely-naifus
   Rarities:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -61,7 +61,7 @@ Resources:
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-
+      TableName: !Sub ${AWS::StackName}-rarities
   QuickstartApi:
     Type: AWS::Serverless::Api
     Properties:
