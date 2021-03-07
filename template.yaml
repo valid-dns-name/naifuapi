@@ -20,8 +20,8 @@ Resources:
             TableName: !Ref Items
       Environment:
         Variables:
-          TABLE_NAME: !Ref Items
-          TABLE_ARN: !GetAtt Items.Arn
+          USER_NAIFUS: !Ref BaseNaifus
+          TABLE_ARN: !GetAtt BaseNaifus.Arn
           BUCKET_NAME: !GetAtt CfDistribution.DomainName
   NaifuTokenToLovelyNaifu:
     Type: AWS::DynamoDB::Table
