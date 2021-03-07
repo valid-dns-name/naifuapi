@@ -1,13 +1,13 @@
 
-const AWS = require('aws-sdk');
-import { ddbHashMapParamsPushDAO, ddbHashMapParamsGetDAO } from '../utils/dao';
+const AWS = require("aws-sdk");
+import { ddbHashMapParamsPushDAO, ddbHashMapParamsGetDAO } from "../utils/dao";
 exports.handler = async (event, context) => {
   console.log(JSON.stringify(event))
   // Use dynamodb to get items from the Item table
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  item = ddbHashMapParamsGetDAO('token_id', dynamodb, process.env.NAIFU_TABLE, event.queryStringParameters.token_id)
+  item = ddbHashMapParamsGetDAO("token_id", dynamodb, process.env.NAIFU_TABLE, event.queryStringParameters.token_id)
   if (item) {
-  var waifu = {
+  let waifu = {
     name: item.name,
     description: item.description,
     image: item.image,
@@ -23,27 +23,29 @@ exports.handler = async (event, context) => {
       rarity = "angelic"
       break;
     case roll >= 99.0:
-      rarity = 'diva'
+      rarity = "diva"
       break;
     case roll >= 90.0:
-      rarity = 'lovely'
+      rarity = "lovely"
       break;
     default:
-      rarity = 'cute'
+      rarity = "cute"
 
     };
   let naifu_rarities = getNaifuRarityCollection(rarity, dynamodb)
   let new_naifu = getBaseNaifuForRarity(naifu_rarities, dynamodb)
   new_naifu.token_id = event.queryStringParameters.token_id
-  let response = ddbHashMapParamsPushDAO('token')
+  let ddb_update = ddbHashMapParamsPushDAO("token_id", dynamodb, process.env.NAIFU_TABLE, new_naifu)
   console.log(`Successfully linked new token with base naifu: ${response}`)
+  let waifu = new_naifu
+
   }
 
   // Return a 200 response if no errors
   const response = {
     statusCode: 200,
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json"
     },
     body: JSON.stringify(waifu)
   };
