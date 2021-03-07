@@ -8,7 +8,7 @@ Resources:
       Description: !Sub
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
         - ResourceName: newItem
-      CodeUri: src/newItem
+      CodeUri: src/newasset
       Handler: index.handler
       Runtime: nodejs12.x
       MemorySize: 3008
@@ -20,9 +20,14 @@ Resources:
             TableName: !Ref Items
       Environment:
         Variables:
-          USER_NAIFUS: !Ref BaseNaifus
-          TABLE_ARN: !GetAtt BaseNaifus.Arn
+          BASE_NAIFUS: !Ref BaseNaifus
+          BASE_NAIFUS_ARN: !GetAtt BaseNaifus.Arn
           BUCKET_NAME: !GetAtt CfDistribution.DomainName
+          CARDS: !Ref LovelyCards
+          RELICS: !Ref Relics
+          CARDS_RARITIES: !Ref LovelyCardRarities
+          NAIFU_RARITIES: !Ref LovelyNaifuRarities
+          RELIC_RARITIES: !Ref RelicCollections
   NaifuTokenToLovelyNaifu:
     Type: AWS::DynamoDB::Table
     Properties:
