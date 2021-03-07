@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  newItem:
+  newnaifu:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-newItem
@@ -36,32 +36,6 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-lovely-naifus
-  ItemTokenToLovelyItem:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: rarity
-          AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-rarities
-  LovelyNaifus:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-        - AttributeName: naifu_id
-          KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-lovely-naifus
   LovelyNaifuRarities:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -75,32 +49,6 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-lovely-naifu-rarities
-  LovelyItemRarities:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: rarity
-          AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-lovely-item-rarities
-  LovelyItems:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-        - AttributeName: naifu_id
-          KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-lovely-items
   QuickstartApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -119,6 +67,30 @@ Resources:
                 type: aws_proxy
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getwaifu.Arn}/invocations
               responses: {}
+          /lovely/card:
+            get:
+              responses: {}
+          /lovely/relic:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getrelic.Arn}/invocations
+              responses: {}
+          /lovely/apply/relic:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applyrelic.Arn}/invocations
+              responses: {}
+          /lovely/apply/pack:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applypack.Arn}/invocations
+              responses: {}
       TracingEnabled: true
       Domain:
         DomainName: api.naifu.cafe
@@ -126,6 +98,7 @@ Resources:
       Cors:
         AllowHeaders: '''Authorization,Content-Type'''
         AllowOrigin: '''*'''
+      EndpointConfiguration: REGIONAL
   getwaifu:
     Type: AWS::Serverless::Function
     Properties:
@@ -145,8 +118,12 @@ Resources:
             TableName: !Ref Items
       Environment:
         Variables:
-          TABLE_NAME: !Ref Items
-          TABLE_ARN: !GetAtt Items.Arn
+          NAIFU_TABLE: !Ref NaifuTokenToLovelyNaifu
+          NAIFU_ARN: !GetAtt NaifuTokenToLovelyNaifu.Arn
+          BASE_NAIFUS: !Ref BaseNaifus
+          BASE_NAIFUS_ARN: !GetAtt BaseNaifus.Arn
+          RARITIES: !Ref LovelyNaifuRarities
+          RARITIES_ARN: !GetAtt LovelyNaifuRarities.Arn
       Events:
         QuickstartApiGETitems:
           Type: Api
@@ -221,6 +198,183 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: Access S3 bucket content only through CloudFront
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  BaseNaifus:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: naifu_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-lovely-naifus
+  getcard:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-getcard
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: getcard
+      CodeUri: src/getcard
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+      Events:
+        QuickstartApiGETlovelycard:
+          Type: Api
+          Properties:
+            Path: /lovely/card
+            Method: GET
+            RestApiId: !Ref QuickstartApi
+      Environment:
+        Variables:
+          CARD_RARITIES: !Ref LovelyCardRarities
+          CARD_RARITIES_ARN: !GetAtt LovelyCardRarities.Arn
+          CARDS: !Ref LovelyCards
+          CARDS_ARN: !Ref LovelyCards.Arn
+  LovelyCards:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: card_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-lovely-items
+  LovelyCardRarities:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: rarity
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: rarity
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-lovely-item-rarities
+  applypack:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-applypack
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: applypack
+      CodeUri: src/applypack
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+      Events:
+        QuickstartApiPOSTlovelyapplypack:
+          Type: Api
+          Properties:
+            Path: /lovely/apply/pack
+            Method: POST
+            RestApiId: !Ref QuickstartApi
+      Environment:
+        Variables:
+          USER_NAIFUS: !Ref NaifuTokenToLovelyNaifu
+          USER_NAIFUS_ARN: !GetAtt NaifuTokenToLovelyNaifu.Arn
+          CARD_RARITIES: !Ref LovelyCardRarities
+          CARDS: !Ref LovelyCards
+          CARD_RARITIES_ARN: !GetAtt LovelyCardRarities.Arn
+          CARDS_ARN: !GetAtt LovelyCards.Arn
+          RELIC_COLLECTIONS: !Ref RelicCollections
+          RELIC_COLLECTIONS_ARN: !Ref RelicCollections.Arn
+  applyrelic:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-applyrelic
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: applyrelic
+      CodeUri: src/applyrelic
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+      Events:
+        QuickstartApiPOSTlovelyapplyrelic:
+          Type: Api
+          Properties:
+            Path: /lovely/apply/relic
+            Method: POST
+            RestApiId: !Ref QuickstartApi
+      Environment:
+        Variables:
+          USER_NAIFUS: !Ref NaifuTokenToLovelyNaifu
+          USER_NAIFUS_ARN: !GetAtt NaifuTokenToLovelyNaifu.Arn
+          RELICS: !Ref Relics
+          RELICS_ARN: !GetAtt Relics.Arn
+  getrelic:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-getrelic
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: getrelic
+      CodeUri: src/getrelic
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+      Events:
+        QuickstartApiGETlovelyrelic:
+          Type: Api
+          Properties:
+            Path: /lovely/relic
+            Method: GET
+            RestApiId: !Ref QuickstartApi
+      Environment:
+        Variables:
+          RELICS: !Ref Relics
+          RELICS_ARN: !GetAtt Relics.Arn
+  RelicCollections:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: type
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: type
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+  Relics:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: relic_id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: relic_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
 Parameters:
   StackTagName:
     Type: String
