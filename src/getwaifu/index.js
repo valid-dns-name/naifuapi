@@ -34,7 +34,12 @@ exports.handler = async (event, context) => {
     };
   let naifu_rarities = getNaifuRarityCollection(rarity, dynamodb)
   let new_naifu = getBaseNaifuForRarity(naifu_rarities, dynamodb)
+  while (new_naifu.used) {
+    new_naifu = getBaseNaifuForRarity(naifu_rarities, dynamodb)
+  }
+  new_naifu.used = true
   new_naifu.token_id = event.queryStringParameters.token_id
+  let update_used_naifu = ddbHashMapParamsPushDAO("naifu_id", dynamodb, )
   let ddb_update = ddbHashMapParamsPushDAO("token_id", dynamodb, process.env.NAIFU_TABLE, new_naifu)
   console.log(`Successfully linked new token with base naifu: ${response}`)
   let waifu = new_naifu
