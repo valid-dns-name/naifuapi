@@ -17,7 +17,17 @@ Resources:
       Policies:
         - AWSXrayWriteOnlyAccess
         - DynamoDBCrudPolicy:
-            TableName: !Ref Items
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
       Environment:
         Variables:
           BASE_NAIFUS: !Ref BaseNaifus
@@ -120,7 +130,17 @@ Resources:
       Policies:
         - AWSXrayWriteOnlyAccess
         - DynamoDBCrudPolicy:
-            TableName: !Ref Items
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
       Environment:
         Variables:
           NAIFU_TABLE: !Ref NaifuTokenToLovelyNaifu
@@ -231,6 +251,18 @@ Resources:
       Tracing: Active
       Policies:
         - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
       Events:
         QuickstartApiGETlovelycard:
           Type: Api
@@ -285,6 +317,20 @@ Resources:
       Tracing: Active
       Policies:
         - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
         QuickstartApiPOSTlovelyapplypack:
           Type: Api
@@ -301,7 +347,7 @@ Resources:
           CARD_RARITIES_ARN: !GetAtt LovelyCardRarities.Arn
           CARDS_ARN: !GetAtt LovelyCards.Arn
           RELIC_COLLECTIONS: !Ref RelicCollections
-          RELIC_COLLECTIONS_ARN: !Ref RelicCollections.Arn
+          RELIC_COLLECTIONS_ARN: !GetAtt RelicCollections.Arn
   applyrelic:
     Type: AWS::Serverless::Function
     Properties:
@@ -317,6 +363,20 @@ Resources:
       Tracing: Active
       Policies:
         - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
         QuickstartApiPOSTlovelyapplyrelic:
           Type: Api
@@ -344,7 +404,20 @@ Resources:
       Timeout: 30
       Tracing: Active
       Policies:
-        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BaseNaifus
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCards
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Relics
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RelicCollections
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyNaifuRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LovelyCardRarities
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
         QuickstartApiGETlovelyrelic:
           Type: Api
