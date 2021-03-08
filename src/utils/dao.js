@@ -1,34 +1,55 @@
 function ddbHashMapParamsPushDAO(key, dynamodb, tablename, object) {
-    let hashmapParams = {
-      TableName: tablename,
-      Item: object
-    }
-      try {
-        console.log(`Getting data from table ${tablename}.`)
-        let response = await dynamodb.put(hashmapParams).promise(); // get items from DynamoDB
-        console.log(`Got data from dynamodb, returned object: ${response.Item}.`)
-      } catch (error) {
-        console.log(`Error getting data from table ${tablename}. Make sure this function is running in the same environment as the table.`);
-        throw new Error(error); // stop execution if data from dynamodb not available
-      }
-      return response.Item
+  let hashmapParams = {
+    TableName: tablename,
+    Item: object,
   };
-  
-function ddbHashMapParamsGetDAO(id, dynamodb, tablename, target) {
-    let hashmapParams = {
-      TableName: tablename,
-      Key: {
-        id: target
-      }
+  dynamodb.put(hashmapParams, (err, data) => {
+    if (err) {
+      console.log(err);
+      throw new Error(err);
+    } else {
+      console.log(`Updated Data from ${tablename}, returned object: ${data}`);
+      return data;
     }
-      try {
-        console.log(`Getting data from table ${tablename}.`)
-        let response = await dynamodb.get(hashmapParams).promise(); // get items from DynamoDB
-        console.log(`Got data from dynamodb, returned object: ${response.Item}.`)
-      } catch (error) {
-        console.log(`Error getting data from table ${tablename}. Make sure this function is running in the same environment as the table.`);
-        throw new Error(error); // stop execution if data from dynamodb not available
-      }
-      return response
-    };
-export { ddbHashMapParamsGetDAO, ddbHashMapParamsPushDAO }
+  });
+}
+
+function ddbHashMapParamsGetDAO(id, dynamodb, tablename, target) {
+  let hashmapParams = {
+    TableName: tablename,
+    Key: {
+      id: target,
+    },
+  };
+  dynamodb.get(hashmapParams, (err, data) => {
+    if (err) {
+      console.log(err);
+      throw new Error(err);
+    } else {
+      console.log(`Got data from ${tablename}, returned object: ${data.Item}`);
+      return data.Item;
+    }
+  });
+}
+function rollRarity() {
+  let rarity = "";
+  roll = Math.random() * 100;
+  switch (roll) {
+    case roll >= 99.98:
+      rarity = "goddess";
+      break;
+    case roll >= 99.9:
+      rarity = "angelic";
+      break;
+    case roll >= 99.0:
+      rarity = "diva";
+      break;
+    case roll >= 90.0:
+      rarity = "lovely";
+      break;
+    default:
+      rarity = "cute";
+  }
+  return rarity;
+}
+export { ddbHashMapParamsGetDAO, ddbHashMapParamsPushDAO, rollRarity };
