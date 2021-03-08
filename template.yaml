@@ -64,56 +64,6 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-lovely-naifu-rarities
-  QuickstartApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub
-        - ${ResourceName} From Stack ${StackTagName} Environment ${EnvironmentTagName}
-        - ResourceName: QuickstartApi
-      StageName: !Ref EnvironmentAPIGatewayStageName
-      DefinitionBody:
-        swagger: '2.0'
-        info: {}
-        paths:
-          /lovely/naifu:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getwaifu.Arn}/invocations
-              responses: {}
-          /lovely/card:
-            get:
-              responses: {}
-          /lovely/relic:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getrelic.Arn}/invocations
-              responses: {}
-          /lovely/apply/relic:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applyrelic.Arn}/invocations
-              responses: {}
-          /lovely/apply/pack:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applypack.Arn}/invocations
-              responses: {}
-      TracingEnabled: true
-      Domain:
-        DomainName: api.naifu.cafe
-        CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
-      Cors:
-        AllowHeaders: '''Authorization,Content-Type'''
-        AllowOrigin: '''*'''
-      EndpointConfiguration: REGIONAL
   getwaifu:
     Type: AWS::Serverless::Function
     Properties:
@@ -150,12 +100,12 @@ Resources:
           RARITIES: !Ref LovelyNaifuRarities
           RARITIES_ARN: !GetAtt LovelyNaifuRarities.Arn
       Events:
-        QuickstartApiGETitems:
+        NaifuAPIGETitems:
           Type: Api
           Properties:
             Path: /lovely/naifu
             Method: GET
-            RestApiId: !Ref QuickstartApi
+            RestApiId: !Ref NaifuAPI
   waifubucket:
     DeletionPolicy: Delete
     Metadata:
@@ -215,6 +165,15 @@ Resources:
             S3OriginConfig:
               OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CfOriginAccessIdentity}
         PriceClass: PriceClass_All
+        Aliases: !If
+          - CfDistributionCustomDomain
+          - - images.naifu.cafe
+          - !Ref AWS::NoValue
+        ViewerCertificate: !If
+          - CfDistributionCustomDomain
+          - AcmCertificateArn: !Ref CfDistributionSSLCertificate
+            SslSupportMethod: sni-only
+          - !Ref AWS::NoValue
     Type: AWS::CloudFront::Distribution
   CfOriginAccessIdentity:
     Metadata:
@@ -264,12 +223,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref LovelyCardRarities
       Events:
-        QuickstartApiGETlovelycard:
+        NaifuAPIGETlovelycard:
           Type: Api
           Properties:
             Path: /lovely/card
             Method: GET
-            RestApiId: !Ref QuickstartApi
+            RestApiId: !Ref NaifuAPI
       Environment:
         Variables:
           CARD_RARITIES: !Ref LovelyCardRarities
@@ -332,12 +291,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
-        QuickstartApiPOSTlovelyapplypack:
+        NaifuAPIPOSTlovelyapplypack:
           Type: Api
           Properties:
             Path: /lovely/apply/pack
             Method: POST
-            RestApiId: !Ref QuickstartApi
+            RestApiId: !Ref NaifuAPI
       Environment:
         Variables:
           USER_NAIFUS: !Ref NaifuTokenToLovelyNaifu
@@ -378,12 +337,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
-        QuickstartApiPOSTlovelyapplyrelic:
+        NaifuAPIPOSTlovelyapplyrelic:
           Type: Api
           Properties:
             Path: /lovely/apply/relic
             Method: POST
-            RestApiId: !Ref QuickstartApi
+            RestApiId: !Ref NaifuAPI
       Environment:
         Variables:
           USER_NAIFUS: !Ref NaifuTokenToLovelyNaifu
@@ -419,12 +378,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref NaifuTokenToLovelyNaifu
       Events:
-        QuickstartApiGETlovelyrelic:
+        NaifuAPIGETlovelyrelic:
           Type: Api
           Properties:
             Path: /lovely/relic
             Method: GET
-            RestApiId: !Ref QuickstartApi
+            RestApiId: !Ref NaifuAPI
       Environment:
         Variables:
           RELICS: !Ref Relics
@@ -453,6 +412,92 @@ Resources:
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
+  NaifuAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stack ${StackTagName} Environment ${EnvironmentTagName}
+        - ResourceName: NaifuAPI
+      StageName: !Ref EnvironmentAPIGatewayStageName
+      DefinitionBody:
+        swagger: '2.0'
+        info: {}
+        paths:
+          /lovely/naifu:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getwaifu.Arn}/invocations
+              responses: {}
+          /lovely/card:
+            get:
+              responses: {}
+          /lovely/relic:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getrelic.Arn}/invocations
+              responses: {}
+          /lovely/apply/relic:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applyrelic.Arn}/invocations
+              responses: {}
+          /lovely/apply/pack:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applypack.Arn}/invocations
+              responses: {}
+      TracingEnabled: true
+      Domain:
+        DomainName: api.naifu.cafe
+        CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
+      Cors:
+        AllowHeaders: '''Authorization,Content-Type'''
+        AllowOrigin: '''*'''
+      EndpointConfiguration: REGIONAL
+  NaifuAPISSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: api.naifu.cafe
+      DomainValidationOptions: !If
+        - NaifuAPICustomDomain
+        - - DomainName: api.naifu.cafe
+            ValidationDomain: naifu.cafe
+        - !Ref AWS::NoValue
+    Condition: NaifuAPICustomDomain
+  NaifuAPICustomDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: api.naifu.cafe
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      RegionalCertificateArn: !Ref NaifuAPISSLCertificate
+    Condition: NaifuAPICustomDomain
+  NaifuAPICustomDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref NaifuAPICustomDomain
+      RestApiId: !Ref NaifuAPI
+      Stage: !Ref EnvironmentAPIGatewayStageName
+    Condition: NaifuAPICustomDomain
+    DependsOn: NaifuAPIStage
+  CfDistributionSSLCertificate:
+    Type: Custom::StackeryUsEast1SSLCertificate
+    Properties:
+      ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
+      DomainName: images.naifu.cafe
+      DomainValidationOptions:
+        - DomainName: images.naifu.cafe
+          ValidationDomain: naifu.cafe
+    Condition: CfDistributionCustomDomain
 Parameters:
   StackTagName:
     Type: String
@@ -463,3 +508,12 @@ Parameters:
   EnvironmentAPIGatewayStageName:
     Type: String
     Description: Environment name used for API Gateway Stage names (injected by Stackery at deployment time)
+Conditions:
+  NaifuAPICustomDomain: !Not
+    - !Equals
+      - 'false'
+      - api.naifu.cafe
+  CfDistributionCustomDomain: !Not
+    - !Equals
+      - 'false'
+      - images.naifu.cafe
