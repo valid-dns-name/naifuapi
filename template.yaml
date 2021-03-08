@@ -518,11 +518,7 @@ Resources:
       DomainName: !Ref EnvConfigimageendpointsAsString
       DomainValidationOptions:
         - DomainName: !Ref EnvConfigimageendpointsAsString
-          ValidationDomain: null
-    Condition: CfDistributionCustomDomain
-    Properties:
-      DomainValidationOptions:
-          ValidationDomain: naifu.cafe
+          ValidationDomain: !Ref EnvConfigvalidationdomainAsString
 Parameters:
   StackTagName:
     Type: String
