@@ -484,7 +484,7 @@ Resources:
       DomainValidationOptions: !If
         - NaifuAPICustomDomain
         - - DomainName: !Ref EnvConfigapiendpointsAsString
-            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
+            ValidationDomain: !Ref EnvConfignaifucafeAsString
         - !Ref AWS::NoValue
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
@@ -511,6 +511,20 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: Access S3 bucket content only through CloudFront
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  CfDistributionSSLCertificate:
+    Type: Custom::StackeryUsEast1SSLCertificate
+    Properties:
+      ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
+      DomainName: !Ref EnvConfigimageendpointsAsString
+      DomainValidationOptions:
+        - DomainName: !Ref EnvConfigimageendpointsAsString
+          ValidationDomain: null
+    Condition: CfDistributionCustomDomain
+  '?(@.Type === ''Custom::StackeryUsEast1SSLCertificate'' &&  (@.Properties.DomainName ?(@.Properties.DomainName === ''[object Object]'' || @.Properties.DomainName.Ref === ''EnvConfigimageendpointsAsString'') :(@.Properties.DomainName === ''[object Object]'')))':
+    Properties:
+      DomainValidationOptions:
+        '?(@.DomainName === ''[object Object]'')':
+          ValidationDomain: naifu.cafe
 Parameters:
   StackTagName:
     Type: String
@@ -524,12 +538,12 @@ Parameters:
   EnvConfigapiendpointsAsString:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /<EnvironmentName>/apiendpoints
-  EnvConfigvalidationdomainAsString:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /<EnvironmentName>/validationdomain
   EnvConfigimageendpointsAsString:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /<EnvironmentName>/imageendpoints
+  EnvConfignaifucafeAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/naifu/cafe
 Conditions:
   NaifuAPICustomDomain: !Not
     - !Equals
@@ -542,5 +556,5 @@ Conditions:
 Metadata:
   EnvConfigParameters:
     EnvConfigapiendpointsAsString: apiendpoints
-    EnvConfigvalidationdomainAsString: validationdomain
     EnvConfigimageendpointsAsString: imageendpoints
+    EnvConfignaifucafeAsString: naifu.cafe
