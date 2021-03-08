@@ -194,7 +194,7 @@ Resources:
           KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-lovely-naifus
+      TableName: !Sub ${AWS::StackName}-base-naifus
   getcard:
     Type: AWS::Serverless::Function
     Properties:
@@ -484,7 +484,7 @@ Resources:
       DomainValidationOptions: !If
         - NaifuAPICustomDomain
         - - DomainName: !Ref EnvConfigapiendpointsAsString
-            ValidationDomain: naifu.cafe
+            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
         - !Ref AWS::NoValue
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
@@ -511,14 +511,6 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: Access S3 bucket content only through CloudFront
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-  CfDistributionSSLCertificate:
-    Type: Custom::StackeryUsEast1SSLCertificate
-    Properties:
-      ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
-      DomainName: !Ref EnvConfigimageendpointsAsString
-      DomainValidationOptions:
-        - DomainName: !Ref EnvConfigimageendpointsAsString
-          ValidationDomain: naifu.cafe
 Parameters:
   StackTagName:
     Type: String
@@ -532,6 +524,9 @@ Parameters:
   EnvConfigapiendpointsAsString:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /<EnvironmentName>/apiendpoints
+  EnvConfigvalidationdomainAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/validationdomain
   EnvConfigimageendpointsAsString:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /<EnvironmentName>/imageendpoints
@@ -547,4 +542,5 @@ Conditions:
 Metadata:
   EnvConfigParameters:
     EnvConfigapiendpointsAsString: apiendpoints
+    EnvConfigvalidationdomainAsString: validationdomain
     EnvConfigimageendpointsAsString: imageendpoints
