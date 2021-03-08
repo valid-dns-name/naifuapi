@@ -486,6 +486,15 @@ Resources:
         - - DomainName: !Ref EnvConfigapiendpointsAsString
             ValidationDomain: !Ref EnvConfigvalidationdomainAsString
         - !Ref AWS::NoValue
+  CfDistributionSSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref EnvConfigapiendpointsAsString
+      DomainValidationOptions: !If
+        - NaifuAPICustomDomain
+        - - DomainName: !Ref EnvConfigimageendpointsAsString
+            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
+        - !Ref AWS::NoValue
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
     Type: AWS::ApiGateway::DomainName
