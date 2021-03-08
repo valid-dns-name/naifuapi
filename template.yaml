@@ -167,7 +167,7 @@ Resources:
         PriceClass: PriceClass_All
         Aliases: !If
           - CfDistributionCustomDomain
-          - - images.naifu.cafe
+          - - !Ref EnvConfigimageendpointsAsString
           - !Ref AWS::NoValue
         ViewerCertificate: !If
           - CfDistributionCustomDomain
@@ -465,17 +465,17 @@ Resources:
   NaifuAPISSLCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: api.naifu.cafe
+      DomainName: !Ref EnvConfigapiendpointsAsString
       DomainValidationOptions: !If
         - NaifuAPICustomDomain
-        - - DomainName: api.naifu.cafe
-            ValidationDomain: naifu.cafe
+        - - DomainName: !Ref EnvConfigapiendpointsAsString
+            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
         - !Ref AWS::NoValue
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      DomainName: api.naifu.cafe
+      DomainName: !Ref EnvConfigapiendpointsAsString
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -493,11 +493,16 @@ Resources:
     Type: Custom::StackeryUsEast1SSLCertificate
     Properties:
       ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
-      DomainName: images.naifu.cafe
+      DomainName: !Ref EnvConfigimageendpointsAsString
       DomainValidationOptions:
-        - DomainName: images.naifu.cafe
+        - DomainName: !Ref EnvConfigimageendpointsAsString
           ValidationDomain: naifu.cafe
     Condition: CfDistributionCustomDomain
+  '?(@.Type === ''Custom::StackeryUsEast1SSLCertificate'' &&  (@.Properties.DomainName ?(@.Properties.DomainName === ''[object Object]'' || @.Properties.DomainName.Ref === ''EnvConfigimageendpointsAsString'') :(@.Properties.DomainName === ''[object Object]'')))':
+    Properties:
+      DomainValidationOptions:
+        '?(@.DomainName === ''[object Object]'')':
+          ValidationDomain: !Ref EnvConfigvalidationdomainAsString
 Parameters:
   StackTagName:
     Type: String
@@ -508,12 +513,26 @@ Parameters:
   EnvironmentAPIGatewayStageName:
     Type: String
     Description: Environment name used for API Gateway Stage names (injected by Stackery at deployment time)
+  EnvConfigapiendpointsAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/apiendpoints
+  EnvConfigvalidationdomainAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/validationdomain
+  EnvConfigimageendpointsAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/imageendpoints
 Conditions:
   NaifuAPICustomDomain: !Not
     - !Equals
       - 'false'
-      - api.naifu.cafe
+      - !Ref EnvConfigapiendpointsAsString
   CfDistributionCustomDomain: !Not
     - !Equals
       - 'false'
-      - images.naifu.cafe
+      - !Ref EnvConfigimageendpointsAsString
+Metadata:
+  EnvConfigParameters:
+    EnvConfigapiendpointsAsString: apiendpoints
+    EnvConfigvalidationdomainAsString: validationdomain
+    EnvConfigimageendpointsAsString: imageendpoints
