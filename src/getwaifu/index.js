@@ -1,6 +1,6 @@
 
 const AWS = require("aws-sdk");
-import { ddbHashMapParamsPushDAO, ddbHashMapParamsGetDAO } from "../utils/dao";
+import { ddbHashMapParamsPushDAO, ddbHashMapParamsGetDAO, rollRarity } from "../utils/dao";
 exports.handler = async (event, context) => {
   console.log(JSON.stringify(event))
   // Use dynamodb to get items from the Item table
@@ -14,24 +14,7 @@ exports.handler = async (event, context) => {
     attributes: item.attributes
   }
 } else {
-  roll = Math.random() * 100
-  switch(roll) {
-    case roll >= 99.98:
-      rarity = "goddess"
-      break;
-    case roll >= 99.9:
-      rarity = "angelic"
-      break;
-    case roll >= 99.0:
-      rarity = "diva"
-      break;
-    case roll >= 90.0:
-      rarity = "lovely"
-      break;
-    default:
-      rarity = "cute"
-
-    };
+  let rarity = rollRarity()
   let naifu_rarities = getNaifuRarityCollection(rarity, dynamodb)
   let new_naifu = getBaseNaifuForRarity(naifu_rarities, dynamodb)
   while (new_naifu.used) {
