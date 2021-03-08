@@ -484,7 +484,7 @@ Resources:
       DomainValidationOptions: !If
         - NaifuAPICustomDomain
         - - DomainName: !Ref EnvConfigapiendpointsAsString
-            ValidationDomain: !Ref EnvConfignaifucafeAsString
+            ValidationDomain: naifu.cafe
         - !Ref AWS::NoValue
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
@@ -535,9 +535,6 @@ Parameters:
   EnvConfigimageendpointsAsString:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /<EnvironmentName>/imageendpoints
-  EnvConfignaifucafeAsString:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /<EnvironmentName>/naifu/cafe
 Conditions:
   NaifuAPICustomDomain: !Not
     - !Equals
@@ -551,4 +548,3 @@ Metadata:
   EnvConfigParameters:
     EnvConfigapiendpointsAsString: apiendpoints
     EnvConfigimageendpointsAsString: imageendpoints
-    EnvConfignaifucafeAsString: naifu.cafe
