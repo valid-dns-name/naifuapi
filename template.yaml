@@ -467,7 +467,7 @@ Resources:
               responses: {}
       TracingEnabled: true
       Domain:
-        DomainName: api.naifu.cafe
+        DomainName: !Ref EnvConfigapiendpointsAsString
         CertificateArn: !Ref NaifuAPISSLCertificate
       Cors:
         AllowHeaders: '''Authorization,Content-Type'''
