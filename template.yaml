@@ -182,13 +182,6 @@ Resources:
             SslSupportMethod: sni-only
           - !Ref AWS::NoValue
     Type: AWS::CloudFront::Distribution
-  CfOriginAccessIdentity:
-    Metadata:
-      Comment: Access S3 bucket content only through CloudFront
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: Access S3 bucket content only through CloudFront
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
   BaseNaifus:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -511,6 +504,27 @@ Resources:
       Stage: !Ref EnvironmentAPIGatewayStageName
     Condition: NaifuAPICustomDomain
     DependsOn: NaifuAPIStage
+  CfDistributionSSLCertificate:
+    Type: Custom::StackeryUsEast1SSLCertificate
+    Properties:
+      ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
+      DomainName: !Ref EnvConfigimageendpointsAsString
+      DomainValidationOptions:
+        - DomainName: !Ref EnvConfigimageendpointsAsString
+          ValidationDomain: null
+    Condition: CfDistributionCustomDomain
+  '?(@.Type === ''Custom::StackeryUsEast1SSLCertificate'' &&  (@.Properties.DomainName ?(@.Properties.DomainName === ''[object Object]'' || @.Properties.DomainName.Ref === ''EnvConfigimageendpointsAsString'') :(@.Properties.DomainName === ''[object Object]'')))':
+    Properties:
+      DomainValidationOptions:
+        '?(@.DomainName === ''[object Object]'')':
+          ValidationDomain: !Ref EnvConfigvalidationdomainAsString
+  CfOriginAccessIdentity:
+    Metadata:
+      Comment: Access S3 bucket content only through CloudFront
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Access S3 bucket content only through CloudFront
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
 Parameters:
   StackTagName:
     Type: String
