@@ -17,9 +17,9 @@ exports.handler = async (event, context) => {
     naifu_id
   );
   if (naifu_response) {
-    let old_naifu = lodash.cloneDeep(naifu_response);
+    let oldNaifu = lodash.cloneDeep(naifu_response);
     try {
-      let naifu = naifu_response
+      let naifu = naifu_response;
       let cardrarities = {};
       for (let i = 0; i < 51; i++) {
         new_card_rarity = rollRarity();
@@ -59,6 +59,16 @@ exports.handler = async (event, context) => {
       });
       updated_attributes = JSON.stringify(naifu_attributes);
       naifu.attributes = updated_attributes;
+      if (!validateStateUpdate(oldNaifu, naifu, 50)) {
+        let invalidCardsResponse = {
+          statusCode: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: `The card pack applicator failed to correctly apply cards, no database updates were tried. DO NOT BURN TOKENS`,
+        };
+        return invalidCardsResponse;
+      }
       let ddb_naifu_update = ddbHashMapParamsPushDAO(
         "token_id",
         dynamodb,
@@ -129,7 +139,63 @@ function getCardForRarity(collection) {
   return card_id;
 }
 
-function validateStateUpdate(oldnaifu, newnaifu) {
-  old_attributes = JSON.parse(oldNaifu.attributes);
-  new_attributes = JSON.parse(newNaifu.attributes);
+function validateStateUpdate(oldNaifu, newNaifu, newCards) {
+  oldAttributes = JSON.parse(oldNaifu.attributes);
+  newAttributes = JSON.parse(newNaifu.attributes);
+  oldAttributes.sort((a, b) => {
+    a.trait_type > b.trait_type;
+  });
+  newAttributes.sort((a, b) => {
+    a.trait_type > b.trait_type;
+  });
+  if (oldAttributes.length != newAttributes.length) {
+    console.log(
+      `Incorrect length of old and new attributes, Old: ${oldAttributes}. New: ${newAttributes}`
+    );
+    return false;
+  }
+  let library_index = -1;
+  for (let i = 0; i < oldAttributes.length; i++) {
+    if (oldAttributes[i].trait_type === "library") {
+      libraryIndex = i;
+      continue;
+    }
+    if (
+      oldAttributes[i].trait_type === newAttributes[i].trait_type &&
+      oldAttributes[i].value === newAttributes[i].value
+    ) {
+      continue;
+    } else {
+      console.log(
+        `Attribute values that were not card libraries were updated incorrectly, oldvalues: type: ${oldAttributes[i].trait_type}, value: ${oldAttributes[i].value}. newValues: type: ${newAttributes[i].trait_type}, value: ${newAttributes[i].value}`
+      );
+      return false;
+    }
+  }
+  let oldLibrary = JSON.parse(oldAttributes[libraryIndex]);
+  let newLibrary = JSON.parse(newAttributes[libraryIndex]);
+  let oldQty = 0;
+  let newQty = 0;
+  let seen = new Set();
+  Object.entries(oldLibrary).map((key, value) => {
+    if (!(key in newLibrary)) {
+      console.log(
+        `The user would lose a card from this update, bailing. Oldlibrary: ${oldLibrary}. NewLibrary: ${newLibrary}`
+      );
+    } else {
+      oldQty += value;
+      newQty += newLibrary[key].value;
+      seen.add(key);
+    }
+  });
+  Object.entries(newLibrary).map((key, value) => {
+    if (!(key in seen)) {
+      newQty += value;
+    }
+  });
+  if (newQty - oldQty !== newCards) {
+    console.log(
+      `The user has not gotten the sufficient amount of cards for a pack buy, bailing. newQty: ${newQty}. oldQty: ${oldQty}`
+    );
+  }
 }
