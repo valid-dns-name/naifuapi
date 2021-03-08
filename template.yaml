@@ -38,6 +38,13 @@ Resources:
           CARDS_RARITIES: !Ref LovelyCardRarities
           NAIFU_RARITIES: !Ref LovelyNaifuRarities
           RELIC_RARITIES: !Ref RelicCollections
+      Events:
+        NaifuAPIPOSTlovelycreate:
+          Type: Api
+          Properties:
+            Path: /lovely/create
+            Method: POST
+            RestApiId: !Ref NaifuAPI
   NaifuTokenToLovelyNaifu:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -422,6 +429,10 @@ Resources:
       DefinitionBody:
         swagger: '2.0'
         info: {}
+        securityDefinitions:
+          type: apiKey
+          in: header
+          name: X-API-KEY
         paths:
           /lovely/naifu:
             get:
@@ -453,6 +464,17 @@ Resources:
                 httpMethod: POST
                 type: aws_proxy
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${applypack.Arn}/invocations
+                security:
+                  - apiKey: []
+              responses: {}
+          /lovely/create:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${newnaifu.Arn}/invocations
+                security:
+                  - apiKey: []
               responses: {}
       TracingEnabled: true
       Domain:
