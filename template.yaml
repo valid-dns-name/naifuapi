@@ -520,10 +520,8 @@ Resources:
         - DomainName: !Ref EnvConfigimageendpointsAsString
           ValidationDomain: null
     Condition: CfDistributionCustomDomain
-  '?(@.Type === ''Custom::StackeryUsEast1SSLCertificate'' &&  (@.Properties.DomainName ?(@.Properties.DomainName === ''[object Object]'' || @.Properties.DomainName.Ref === ''EnvConfigimageendpointsAsString'') :(@.Properties.DomainName === ''[object Object]'')))':
     Properties:
       DomainValidationOptions:
-        '?(@.DomainName === ''[object Object]'')':
           ValidationDomain: naifu.cafe
 Parameters:
   StackTagName:
