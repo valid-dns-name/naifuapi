@@ -479,7 +479,7 @@ Resources:
       DomainName: !Ref EnvConfigapiendpointsAsString
       DomainValidationOptions:
         DomainName: !Ref EnvConfigapiendpointsAsString
-          ValidationDomain: !Ref EnvConfigvalidationdomainAsString
+        ValidationDomain: !Ref EnvConfigvalidationdomainAsString
   CfDistributionSSLCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
