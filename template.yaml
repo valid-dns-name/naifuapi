@@ -172,15 +172,11 @@ Resources:
             S3OriginConfig:
               OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CfOriginAccessIdentity}
         PriceClass: PriceClass_All
-        Aliases: !If
-          - CfDistributionCustomDomain
-          - - !Ref EnvConfigimageendpointsAsString
-          - !Ref AWS::NoValue
-        ViewerCertificate: !If
-          - CfDistributionCustomDomain
-          - AcmCertificateArn: !Ref CfDistributionSSLCertificate
-            SslSupportMethod: sni-only
-          - !Ref AWS::NoValue
+        Aliases:
+          !Ref EnvConfigimageendpointsAsString
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CfDistributionSSLCertificate
+          SslSupportMethod: sni-only
     Type: AWS::CloudFront::Distribution
   BaseNaifus:
     Type: AWS::DynamoDB::Table
@@ -472,7 +468,7 @@ Resources:
       TracingEnabled: true
       Domain:
         DomainName: api.naifu.cafe
-        CertificateArn: arn:aws:acm:us-east-2:062568520934:certificate/707359eb-0b4f-407a-b204-df28b4835a32
+        CertificateArn: !Ref NaifuAPISSLCertificate
       Cors:
         AllowHeaders: '''Authorization,Content-Type'''
         AllowOrigin: '''*'''
@@ -481,20 +477,16 @@ Resources:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: !Ref EnvConfigapiendpointsAsString
-      DomainValidationOptions: !If
-        - NaifuAPICustomDomain
-        - - DomainName: !Ref EnvConfigapiendpointsAsString
-            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
-        - !Ref AWS::NoValue
+      DomainValidationOptions:
+        DomainName: !Ref EnvConfigapiendpointsAsString
+          ValidationDomain: !Ref EnvConfigvalidationdomainAsString
   CfDistributionSSLCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: !Ref EnvConfigapiendpointsAsString
-      DomainValidationOptions: !If
-        - NaifuAPICustomDomain
-        - - DomainName: !Ref EnvConfigimageendpointsAsString
-            ValidationDomain: !Ref EnvConfigvalidationdomainAsString
-        - !Ref AWS::NoValue
+      DomainValidationOptions:
+        DomainName: !Ref EnvConfigimageendpointsAsString
+        ValidationDomain: !Ref EnvConfigvalidationdomainAsString
     Condition: NaifuAPICustomDomain
   NaifuAPICustomDomain:
     Type: AWS::ApiGateway::DomainName
