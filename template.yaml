@@ -275,7 +275,7 @@ Resources:
           CARD_RARITIES: !Ref LovelyCardRarities
           CARD_RARITIES_ARN: !GetAtt LovelyCardRarities.Arn
           CARDS: !Ref LovelyCards
-          CARDS_ARN: !Ref LovelyCards.Arn
+          CARDS_ARN: !GetAtt LovelyCards.Arn
   LovelyCards:
     Type: AWS::DynamoDB::Table
     Properties:
